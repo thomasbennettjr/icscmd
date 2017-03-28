@@ -18,6 +18,7 @@ public class Cli {
         options.addOption("w", "wait", false, "Will block any other commands from executing until job is completed");
         options.addOption("un", "username", true, "Informatica Cloud User Name");
         options.addOption("pw", "password", true, "Informatica Cloud Password");
+        options.addOption("pwe", "password", true, "Informatica Cloud Password in Environment Variable");
         options.addOption("j", "session", true, "The Informatica Cloud Job to Execute");
         options.addOption("s", "stop", false, "Stop executed previously executed Job");
         options.addOption("t", "type", true, "Supported Arguments [AVS | DMASK | DQA | DRS | DSS | MTT | PCS | Workflow | DNB_WORKFLOW]");
@@ -56,6 +57,7 @@ public class Cli {
 
 
         try {
+            boolean hasPwd = true;
             CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, argv);
 
@@ -74,8 +76,21 @@ public class Cli {
             {
                 logger.info("Using cli argument -pw");
             } else {
-                logger.fatal("Missing -pw option");
-                help();
+                hasPwd = false;
+                logger.warn("Missing -pw option");
+            }
+
+            if (cmd.hasOption("pwe"))
+            {
+                logger.info("Using cli argument -pwe");
+            } else {
+                if (!hasPwd)
+                {
+                    logger.fatal("Missing -pwe | -pw option");
+                    help();
+                } else {
+                    logger.warn("Missing -pwe option");
+                }
             }
 
             if (cmd.hasOption("t"))

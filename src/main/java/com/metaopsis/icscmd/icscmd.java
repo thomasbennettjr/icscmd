@@ -20,12 +20,22 @@ public class icscmd {
         logger.debug("Passing CLI arguement in to be parsed:: " + Arrays.toString(args));
         Cli.parse(args);
         logger.debug("CLI Arguments parsed successfully");
-
+        Login login = null;
+        User user = null;
+        String encpwd = null;
         try {
             InformaticaCloudImpl impl = new InformaticaCloudImpl();
-            Login login = new Login(Cli.getCliValue("un"), Cli.getCliValue("pw"));
+            if (Cli.hasCliValue("pw")) {
+                login = new Login(Cli.getCliValue("un"), Cli.getCliValue("pw"));
+                encpwd = Cli.getCliValue("pw");
+            }
+            else {
+                login = new Login(Cli.getCliValue("un"), System.getenv(Cli.getCliValue("pwe")));
+                encpwd = System.getenv(Cli.getCliValue("pwe"));
+            }
+
             logger.debug(login.toString());
-            User user = impl.login(login);
+            user = impl.login(login);
             if (impl.hasError()) {
                 logger.error("Error from call to ICS Login End Point");
                 handleError(impl.getError());
@@ -64,13 +74,16 @@ public class icscmd {
                     {
                         logger.error("Error from call to ICS ActivityLog End Point");
                         handleError(impl.getError());
+                    } else {
+                        if (logs == null) {
+                            logger.trace("Sleeping before next call back to Activity Monitor");
+                            Thread.sleep(5000);
+                            logger.trace("Waking Up");
+                        }
                     }
-                    if (logs == null)
-                    {
-                        logger.trace("Sleeping before next call back to Activity Monitor");
-                        Thread.sleep(5000);
-                        logger.trace("Waking Up");
-                    }
+                    impl.logout(user);
+                    user = impl.login(new Login(Cli.getCliValue("un"), encpwd));
+
                 } while(logs == null);
                 /*
                 * job.state = State of Job at completion
