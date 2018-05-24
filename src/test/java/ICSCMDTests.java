@@ -17,7 +17,7 @@ public class ICSCMDTests {
     @Test
     public void TestAPIWait()
     {
-        String[] args = {"-un", "tbennett@criticalmindsad.com", "-pw", "lak3v13w.c0m", "-j", "mct_iot_load_infractions", "-t", "MTT", "-w"};
+        String[] args = {"-un", "tbennett@unicosolution.com", "-pw", "YElpc1plT0N9SyFkZ1MsdTd3cS9vNm9tb3dlY3NjWmtueXcwaWc9PQ==", "-j", "mct_Tom_CentOS", "-t", "MTT", "-w"};
         icscmd.main(args);
 
     }

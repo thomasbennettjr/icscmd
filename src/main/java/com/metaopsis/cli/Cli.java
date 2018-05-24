@@ -12,6 +12,7 @@ public class Cli {
     private static final Options options = new Options();
     private static CommandLine cmd = null;
     private static ArrayList<String> types = new ArrayList<String>();
+    private static String _VERSION = "1.5_12";
 
     static {
         options.addOption("h", "help", false, "show help.");
@@ -22,7 +23,15 @@ public class Cli {
         options.addOption("j", "session", true, "The Informatica Cloud Job to Execute");
         options.addOption("s", "stop", false, "Stop executed previously executed Job");
         options.addOption("t", "type", true, "Supported Arguments [AVS | DMASK | DQA | DRS | DSS | MTT | PCS | Workflow | DNB_WORKFLOW]");
-
+        options.addOption("iw", "ignorewarning", false, "Informatica Cloud Jobs in warning status will not be reported as failed");
+        options.addOption("c","connection", false, "Change a Connection Password");
+        options.addOption("cn", "name", true, "Connection Name");
+        options.addOption("cp", "connpwd", true, "Connection Password");
+        options.addOption("cf", "connfile", true, "Path to Connection Password file");
+        options.addOption("csf", "connectionsearchfile", true, "Path to file with search value");
+        options.addOption("ep", "encryptedpwd",false,"Connection passwords encrypted");
+        options.addOption("bteq", "bteq", true, "Execute Teradata BTEQ script");
+        options.addOption("v","version", false,"product version");
         types.add("AVS");
         types.add("DMASK");
         types.add("DQA");
@@ -60,7 +69,11 @@ public class Cli {
             boolean hasPwd = true;
             CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, argv);
-
+            if (cmd.hasOption("v"))
+            {
+                System.out.println("Version: " + _VERSION);
+                System.exit(0);
+            }
             if (cmd.hasOption("h")) {
                 help();
             }
@@ -68,8 +81,10 @@ public class Cli {
             if (cmd.hasOption("un")) {
                 logger.info("Using cli argument -un");
             } else {
-                logger.fatal("Missing -un option");
-                help();
+                if (!cmd.hasOption("bteq")) {
+                    logger.warn("Missing -un option");
+                    help();
+                }
             }
 
             if (cmd.hasOption("pw"))
@@ -77,7 +92,7 @@ public class Cli {
                 logger.info("Using cli argument -pw");
             } else {
                 hasPwd = false;
-                logger.warn("Missing -pw option");
+                //logger.warn("Missing -pw option");
             }
 
             if (cmd.hasOption("pwe"))
@@ -86,10 +101,14 @@ public class Cli {
             } else {
                 if (!hasPwd)
                 {
-                    logger.fatal("Missing -pwe | -pw option");
-                    help();
+                    if (!cmd.hasOption("bteq")) {
+                        logger.fatal("Missing -pwe | -pw option");
+                        help();
+                    }
                 } else {
-                    logger.warn("Missing -pwe option");
+                    if (!cmd.hasOption("bteq")) {
+                        logger.warn("Missing -pwe option");
+                    }
                 }
             }
 
@@ -103,15 +122,15 @@ public class Cli {
                     help();
                 }
             } else {
-                logger.fatal("Missing -t option");
+                logger.warn("Missing -t option");
             }
 
             if (cmd.hasOption("j")) {
 
                 logger.info("Using cli argument -j");
             } else {
-                logger.fatal("Missing -j option");
-                help();
+                logger.warn("Missing -j option");
+                //help();
             }
 
             if (cmd.hasOption("s"))
@@ -125,6 +144,11 @@ public class Cli {
                 }
             }
 
+            if (cmd.hasOption("iw"))
+            {
+                logger.info("Using cli argument -iw");
+            }
+
             if (cmd.hasOption("w")) {
                 logger.info("Using cli argument -w");
                 if (cmd.hasOption("s"))
@@ -133,6 +157,49 @@ public class Cli {
                     System.err.print("Use of both cli arguments -s and -w is not permitted");
                     help();
                 }
+            }
+
+            if (cmd.hasOption("bteq"))
+            {
+                logger.info("Using cli argument -bteq");
+            }
+
+            if (cmd.hasOption("c"))
+            {
+                logger.info("Using cli argument -c");
+                if (cmd.hasOption("cf")) {
+                		if (cmd.hasOption("csf"))
+                		{
+                			logger.error("Cannot have both -cf and -csf");
+                			System.err.println("Cannot have both -cf and -csf");
+                			help();
+                		}
+                    logger.info("Using -cf argument to read bulk connection file");
+                }
+                else if (cmd.hasOption("csf"))
+                {
+	                	if (cmd.hasOption("cf"))
+	            		{
+	            			logger.error("Cannot have both -cf and -csf");
+	            			System.err.println("Cannot have both -cf and -csf");
+	            			help();
+	            		}
+	                logger.info("Using -csf argument to read bulk search connection file");
+                }
+                else
+                {
+                    if (!cmd.hasOption("cn")) {
+                        logger.info("Use of -c argument requires -cn for connection name");
+                        System.err.print("Use of -c argument requires -cn for connection name");
+                        help();
+                    }
+                    if (!cmd.hasOption("cp")) {
+                        logger.info("Use of -c argument requires -cp for connection password");
+                        System.err.print("Use of -c argument requires -cp for connection password");
+                        help();
+                    }
+                }
+                
             }
 
         } catch (ParseException e) {
