@@ -2,7 +2,7 @@ package com.metaopsis.icscmd;
 
 import com.metaopsis.cli.Cli;
 
-import com.metaopsis.crypto.Encryptor;
+import security.cryptor.Encryptor;
 import com.metaopsis.helper.ConnectionPassword;
 import com.metaopsis.helper.Record;
 import com.metaopsis.icsapi.helper.*;

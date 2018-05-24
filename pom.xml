@@ -64,8 +64,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.metaopsis</groupId>
-            <artifactId>crypto</artifactId>
+            <groupId>security</groupId>
+            <artifactId>cryptor</artifactId>
             <version>1.0</version>
         </dependency>
     </dependencies>
