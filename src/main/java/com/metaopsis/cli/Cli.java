@@ -32,6 +32,8 @@ public class Cli {
         options.addOption("ep", "encryptedpwd",false,"Connection passwords encrypted");
         options.addOption("bteq", "bteq", true, "Execute Teradata BTEQ script");
         options.addOption("v","version", false,"product version");
+        options.addOption("dm", "dynamicmapping", false, "Create Mapping Configuration Task(s)");
+        options.addOption("dmf", "", true, "Path to file to create Mapping Configurations");
         types.add("AVS");
         types.add("DMASK");
         types.add("DQA");
@@ -131,6 +133,17 @@ public class Cli {
             } else {
                 logger.warn("Missing -j option");
                 //help();
+            }
+
+            if (cmd.hasOption("dm"))
+            {
+                logger.info("Using cli argument -dm");
+                if (!cmd.hasOption("dmf"))
+                {
+                    logger.error("Use of dm option requires use of dmf option");
+                    System.err.print("Use of dm option requires use of dmf option");
+                    help();
+                }
             }
 
             if (cmd.hasOption("s"))
